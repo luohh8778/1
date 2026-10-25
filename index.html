@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#061116" />
+  <meta name="description" content="1号厂房 4F–1F 楼层深化：功能分区、代表性设备体块与四层建筑主体框架 Three.js 交互示意。" />
+  <title>1号厂房 / 楼层深化 / Floor Details</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="boot" id="boot" aria-hidden="true">
+    <div class="boot-mark" aria-hidden="true">
+      <i></i><i></i><i></i><i></i>
+    </div>
+    <div class="boot-copy">
+      <span>PLANT 01 / FLOOR DETAILS</span>
+      <b>4F–1F / LAYOUT</b>
+    </div>
+    <div class="boot-line"><i id="bootLine"></i></div>
+  </div>
+
+  <div class="error" id="error" role="alert" hidden>
+    <div class="error-card">
+      <span class="micro">WEBGL / SCENE ERROR</span>
+      <h2>三维框架未能启动</h2>
+      <p id="errorText">当前浏览器没有启用 WebGL，或场景脚本加载失败。</p>
+      <button type="button" onclick="location.reload()">重新加载</button>
+    </div>
+  </div>
+
+  <main class="app" id="app">
+    <canvas id="scene" aria-label="1号厂房 4F–1F 楼层深化三维示意图"></canvas>
+
+    <div class="backdrop" aria-hidden="true">
+      <div class="backdrop-glow"></div>
+      <div class="backdrop-grid"></div>
+      <div class="backdrop-vignette"></div>
+      <div class="backdrop-scan"></div>
+    </div>
+
+    <div class="zone-tags" id="zoneTags" aria-hidden="true"></div>
+
+    <header class="masthead">
+      <div class="eyebrow">
+        <span class="eyebrow-rule"></span>
+        <span id="eyebrowLabel">PLANT 01 / STRUCTURAL BLOCKOUT</span>
+        <span class="edition">V0.5</span>
+      </div>
+      <h1 id="pageTitle">1F 工艺布局</h1>
+      <p class="subtitle" id="pageSubtitle">管件制造 · CDU 管路组装 · 表面处理 · 测试 <span>·</span> 1F</p>
+      <div class="head-meta" id="headMeta">
+        <span><b>31</b> 条清单</span>
+        <span><b>13</b> 个图纸分区</span>
+        <span><b>01</b> 层深化</span>
+        <span class="meta-muted">设备体块示意</span>
+      </div>
+    </header>
+
+    <div class="source-chip" id="sourceChip">
+      <span class="source-dot"></span>
+      <span id="sourceText"><b>4F / 分区纳入</b> · 设备体块深化</span>
+    </div>
+
+    <aside class="panel" aria-label="结构控制面板">
+      <div class="panel-head">
+        <span>结构控制 <i>/ STRUCTURE</i></span>
+        <span class="live"><i></i> LIVE</span>
+      </div>
+
+      <div class="mode-tabs" id="modeTabs" role="tablist" aria-label="场景模式">
+        <button class="mode-tab active" data-mode="detail" type="button" role="tab" aria-selected="true">
+          <span id="detailTabLabel">1F 工艺布局</span><small>FLOOR DETAIL</small>
+        </button>
+        <button class="mode-tab" data-mode="frame" type="button" role="tab" aria-selected="false">
+          <span>建筑主体框架</span><small>STRUCTURE</small>
+        </button>
+      </div>
+
+      <section class="panel-block floor-block">
+        <div class="block-title">楼层 <span>LEVELS</span></div>
+        <div class="floor-list" id="floorList">
+          <button class="floor-row all active" data-floor="all" type="button" aria-pressed="true">
+            <span class="all-glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span class="floor-main"><b>全部楼层</b><small>ALL LEVELS</small></span>
+            <span class="floor-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="floor-row" data-floor="3" type="button" aria-pressed="false" style="--floor-color:#c8a8ff">
+            <span class="floor-dot"></span>
+            <span class="floor-id">4F</span>
+            <span class="floor-main"><b>实验室 / 研发 / 办公</b><small>LAB / R&amp;D / TRAINING</small></span>
+            <span class="floor-tag">PDF</span>
+          </button>
+          <button class="floor-row" data-floor="2" type="button" aria-pressed="false" style="--floor-color:#efca70">
+            <span class="floor-dot"></span>
+            <span class="floor-id">3F</span>
+            <span class="floor-main"><b>电气 / 机架式 CDU / MF</b><small>ELECTRICAL / RACK / CLEAN</small></span>
+            <span class="floor-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="floor-row" data-floor="1" type="button" aria-pressed="false" style="--floor-color:#61d7c2">
+            <span class="floor-dot"></span>
+            <span class="floor-id">2F</span>
+            <span class="floor-main"><b>CDU 预装 / 总装 / 包装</b><small>PREASSEMBLY / LINE / PACK</small></span>
+            <span class="floor-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="floor-row" data-floor="0" type="button" aria-pressed="false" style="--floor-color:#7cb8e8">
+            <span class="floor-dot"></span>
+            <span class="floor-id">1F</span>
+            <span class="floor-main"><b>管件制造 / 管路组装</b><small>PIPE / CDU PIPE / TEST</small></span>
+            <span class="floor-arrow" aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel-block">
+        <div class="block-title">显示 <span>LAYERS</span></div>
+        <div class="switch-list">
+          <label class="switch-row">
+            <span>楼板 <small>SLABS</small></span>
+            <input type="checkbox" data-layer="slabs" checked />
+            <i class="switch" aria-hidden="true"></i>
+          </label>
+          <label class="switch-row">
+            <span>柱网 <small>COLUMNS</small></span>
+            <input type="checkbox" data-layer="columns" checked />
+            <i class="switch" aria-hidden="true"></i>
+          </label>
+          <label class="switch-row">
+            <span>边梁与结构线 <small>FRAME</small></span>
+            <input type="checkbox" data-layer="beams" checked />
+            <i class="switch" aria-hidden="true"></i>
+          </label>
+          <label class="switch-row">
+            <span>核心筒 <small>CORES</small></span>
+            <input type="checkbox" data-layer="cores" checked />
+            <i class="switch" aria-hidden="true"></i>
+          </label>
+          <label class="switch-row">
+            <span>分区 / 楼层标注 <small>LABELS</small></span>
+            <input type="checkbox" data-layer="labels" checked />
+            <i class="switch" aria-hidden="true"></i>
+          </label>
+          <label class="switch-row">
+            <span>自动旋转 <small>AUTO ORBIT</small></span>
+            <input type="checkbox" data-layer="rotate" checked />
+            <i class="switch" aria-hidden="true"></i>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel-block view-block">
+        <div class="block-title">视图 <span>VIEW</span></div>
+        <div class="view-grid" id="viewGrid">
+          <button class="view-btn active" data-view="iso" type="button">轴测 <small>ISO</small></button>
+          <button class="view-btn" data-view="front" type="button">正立面 <small>ELEV</small></button>
+          <button class="view-btn" data-view="side" type="button">侧立面 <small>SIDE</small></button>
+          <button class="view-btn" data-view="top" type="button">俯视 <small>TOP</small></button>
+        </div>
+        <div class="action-grid">
+          <button class="action-btn active" id="explodeBtn" type="button" aria-pressed="true">
+            <span>分层展开</span><i>EXPLODE</i>
+          </button>
+          <button class="action-btn" id="wireBtn" type="button" aria-pressed="false">
+            <span>结构线框</span><i>WIRE</i>
+          </button>
+          <button class="action-btn reset" id="resetBtn" type="button">
+            <span>复位视角</span><i>RESET</i>
+          </button>
+        </div>
+      </section>
+
+      <section class="panel-note" id="panelNote">
+        <span class="note-mark" id="panelNoteMark">!</span>
+        <p id="panelNoteText"><b>4F 为 PDF 复核补入。</b> 输入的 AI 结构化 JSON 只含 1F–3F；实际 PDF 第 1 页含 4F 实验室 / 试制 / 展厅 / 办公 / 培训平面。4F 的设备与分区映射仍需补做。</p>
+      </section>
+    </aside>
+
+    <section class="info-dock" id="infoGeneral" hidden>
+      <div class="info-head">
+        <span class="micro">READING THE FRAME / 01</span>
+        <span class="info-rule"></span>
+      </div>
+      <h2>从楼板，到柱网</h2>
+      <p>四层统一结构：主楼 15×4 柱网、左右两翼各 3×8、北侧 1×7 凸出结构；当前只表达建筑结构层级，不包含产线设备与室内分隔。</p>
+      <div class="legend">
+        <span><i class="lg-slab"></i>楼板</span>
+        <span><i class="lg-col"></i>柱</span>
+        <span><i class="lg-beam"></i>边梁</span>
+        <span><i class="lg-core"></i>核心筒</span>
+      </div>
+      <p class="data-note">柱网按 15×4 / 3×8 / 1×7 结构关系重建；层高、构件截面与净高仍未标定，本图为体块示意，非施工图。</p>
+    </section>
+
+    <section class="info-dock info-dock-1f" id="infoOneF">
+      <div class="info-head">
+        <span class="micro">1F / PROCESS LAYOUT / 01</span>
+        <span class="info-rule"></span>
+      </div>
+      <h2>管件重工艺层</h2>
+      <p>西端来料与仓储，中西部下料/成型/焊接，南侧 CDU 管路组装，东端表面处理、环网/预装与实验室。设备当前只做体块示意。</p>
+      <div class="legend legend-1f">
+        <span><i class="lg-raw"></i>来料/仓储</span>
+        <span><i class="lg-weld"></i>下料/焊接</span>
+        <span><i class="lg-cdu"></i>CDU 组装</span>
+        <span><i class="lg-surface"></i>表面处理</span>
+        <span><i class="lg-lab"></i>实验/测试</span>
+        <span><i class="lg-plaza"></i>园区广场</span>
+      </div>
+      <p class="data-note">设备落位与数量为区块示意，需以设备布置图和工艺确认版为准。</p>
+    </section>
+
+    <div class="view-dock" aria-label="快捷视图">
+      <button type="button" class="dock-btn" data-view="iso">轴测</button>
+      <button type="button" class="dock-btn" data-view="front">正面</button>
+      <button type="button" class="dock-btn" data-view="side">侧面</button>
+      <button type="button" class="dock-btn" data-view="top">俯视</button>
+      <span class="dock-sep"></span>
+      <button type="button" class="dock-btn icon-only" id="dockExplode" title="分层展开" aria-label="分层展开">⇕</button>
+      <button type="button" class="dock-btn icon-only" id="dockReset" title="复位视角" aria-label="复位视角">↺</button>
+    </div>
+
+    <div class="interaction-hint">
+      <span><b>DRAG</b> 旋转</span>
+      <span><b>SCROLL</b> 缩放</span>
+      <span><b>CLICK</b> 选层</span>
+    </div>
+
+    <div class="compass" aria-label="指北针">
+      <svg viewBox="0 0 44 44" aria-hidden="true">
+        <circle cx="22" cy="22" r="17"></circle>
+        <path d="M22 7 L27 25 L22 22 L17 25 Z"></path>
+        <text x="22" y="39" text-anchor="middle">N</text>
+      </svg>
+    </div>
+
+    <div class="equipment-tip" id="equipmentTip" aria-live="polite"></div>
+    <div class="selection-toast" id="selectionToast" aria-live="polite"></div>
+
+    <footer class="footer-line">
+      <span id="footerMode">1号厂房 / 1F 深化</span>
+      <span class="footer-mid" id="footerCenter">PROCESS LAYOUT · SCHEMATIC · NOT FOR CONSTRUCTION</span>
+      <span>2026.10 / BLOCKOUT 05</span>
+    </footer>
+  </main>
+
+  <script src="vendor/three.global.js"></script>
+  <script src="vendor/orbit-controls.global.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
